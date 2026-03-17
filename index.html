@@ -166,8 +166,8 @@ label.lbl{font-size:12px;color:var(--text2);display:block;margin-bottom:5px}
 //  ⚙️  CONFIGURATION — replace with your Supabase credentials
 //  Get them from: Supabase Dashboard → Project → Settings → API
 // ═══════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://uarmuzwvluqmpsvvdwir.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_-giDe1inBdQufvJV1zcypg_d9DggAN8';
+const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
 // ═══════════════════════════════════════════════════════════
 
 const FREE_DOMAINS = ['@mailbox.io','@fastpost.net','@swiftmail.org','@clearpost.me','@inboxly.com'];
@@ -229,10 +229,10 @@ function renderLoading(){
   return w;
 }
 
-// ── AUTH ─────────────────────────────────────────────────
+// ── AUTH ──────────────────────────────────────────────────────────────
 function renderAuth(){
   let tab='login', domain=FREE_DOMAINS[0], domains=[...FREE_DOMAINS];
-  let username='', password='', confirm='', customInp='';
+  let username='', realEmail='', password='', confirm='', customInp='';
 
   const screen=el('div',{class:'auth-screen'});
   const card=el('div',{class:'auth-card'});
@@ -240,34 +240,75 @@ function renderAuth(){
 
   function rebuild(){
     card.innerHTML='';
-
     const logo=el('div',{class:'logo'},'mail'); logo.appendChild(el('span',{},'box')); card.appendChild(logo);
     card.appendChild(el('div',{class:'auth-sub'},'Free & custom domain email — forever free.'));
 
-    // tabs
     const tabs=el('div',{class:'tabs'});
     ['login','create'].forEach(t=>{
       const b=el('button',{class:'tab'+(tab===t?' active':'')},t==='login'?'Sign in':'Create account');
-      b.onclick=()=>{tab=t; rebuild();};
+      b.onclick=()=>{tab=t;rebuild();};
       tabs.appendChild(b);
     });
     card.appendChild(tabs);
 
-    // message area
     const msgArea=el('div',{id:'auth-msg'});
     card.appendChild(msgArea);
     function showErr(m){msgArea.innerHTML='';msgArea.appendChild(el('div',{class:'err'},m));}
     function showOk(m){msgArea.innerHTML='';msgArea.appendChild(el('div',{class:'ok'},m));}
 
-    // username + domain
-    card.appendChild(el('label',{class:'lbl'},'Username'));
-    const urow=el('div',{class:'urow'});
-    const uinp=el('input',{class:'inp',placeholder:'yourname',value:username});
-    uinp.oninput=e=>username=e.target.value;
-    const dsel=el('select',{class:'dsel'});
-    domains.forEach(d=>{const o=el('option',{value:d},d);if(d===domain)o.selected=true;dsel.appendChild(o);});
-    dsel.onchange=e=>domain=e.target.value;
-    urow.appendChild(uinp); urow.appendChild(dsel); card.appendChild(urow);
+    if(tab==='create'){
+      // Mailbox address picker
+      card.appendChild(el('label',{class:'lbl'},'Your mailbox address'));
+      const urow=el('div',{class:'urow'});
+      const uinp=el('input',{class:'inp',placeholder:'yourname',value:username});
+      uinp.oninput=e=>username=e.target.value;
+      const dsel=el('select',{class:'dsel'});
+      domains.forEach(d=>{const o=el('option',{value:d},d);if(d===domain)o.selected=true;dsel.appendChild(o);});
+      dsel.onchange=e=>domain=e.target.value;
+      urow.appendChild(uinp); urow.appendChild(dsel); card.appendChild(urow);
+
+      // Domain pills
+      const dsec=el('div',{class:'dsec',style:'margin-bottom:14px'});
+      const dpills=el('div',{class:'dpills'});
+      domains.forEach(d=>{
+        const pill=el('div',{class:'dpill'+(d===domain?' sel':'')},d);
+        pill.onclick=()=>{domain=d;dsel.value=d;rebuild();};
+        if(!FREE_DOMAINS.includes(d)){
+          const x=el('button',{class:'dpill-x'},'×');
+          x.onclick=e=>{e.stopPropagation();domains=domains.filter(i=>i!==d);if(domain===d)domain=domains[0];rebuild();};
+          pill.appendChild(x);
+        }
+        dpills.appendChild(pill);
+      });
+      dsec.appendChild(dpills);
+      const darow=el('div',{class:'dadd-row'});
+      const dainp=el('input',{class:'dadd-inp',placeholder:'add custom domain e.g. mycompany.com'});
+      dainp.oninput=e=>customInp=e.target.value;
+      dainp.value=customInp;
+      const dabtn=el('button',{class:'dadd-btn'},'+ Add');
+      dabtn.onclick=()=>{
+        let d=customInp.trim();if(!d)return;
+        if(!d.startsWith('@'))d='@'+d;
+        if(!/^@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(d)){showErr('Invalid domain. Example: @mycompany.com');return;}
+        if(!domains.includes(d))domains.push(d);
+        domain=d;customInp='';rebuild();
+      };
+      dainp.onkeydown=e=>e.key==='Enter'&&dabtn.click();
+      darow.appendChild(dainp);darow.appendChild(dabtn);dsec.appendChild(darow);
+      dsec.appendChild(el('div',{class:'dhint'},'This is your in-app email address e.g. yourname@mycompany.com'));
+      card.appendChild(dsec);
+
+      // Real email for auth
+      card.appendChild(el('label',{class:'lbl'},'Your real email (used to log in)'));
+      const reinp=el('input',{class:'inp',type:'email',placeholder:'your@gmail.com',value:realEmail});
+      reinp.oninput=e=>realEmail=e.target.value;
+      card.appendChild(reinp);
+    } else {
+      card.appendChild(el('label',{class:'lbl'},'Login email'));
+      const reinp=el('input',{class:'inp',type:'email',placeholder:'your@gmail.com',value:realEmail});
+      reinp.oninput=e=>realEmail=e.target.value;
+      card.appendChild(reinp);
+    }
 
     card.appendChild(el('label',{class:'lbl'},'Password'));
     const pinp=el('input',{class:'inp',type:'password',placeholder:tab==='login'?'Enter password':'Create a password',value:password});
@@ -286,57 +327,32 @@ function renderAuth(){
 
     abtn.onclick=async()=>{
       msgArea.innerHTML='';
-      if(!username.trim()){showErr('Enter a username.');return;}
+      if(!realEmail.trim()){showErr('Enter your login email.');return;}
       if(!password.trim()){showErr('Enter a password.');return;}
+      if(tab==='create'&&!username.trim()){showErr('Enter a username for your mailbox.');return;}
       if(tab==='create'&&password!==confirm){showErr('Passwords do not match.');return;}
-      abtn.disabled=true; abtn.textContent='Please wait...';
-      const email=username.trim()+domain;
+      abtn.disabled=true;abtn.textContent='Please wait...';
+      const mailboxAddr=username.trim()+domain;
       try{
         if(tab==='login'){
-          const {error}=await sb.auth.signInWithPassword({email,password});
+          const {error}=await sb.auth.signInWithPassword({email:realEmail.trim(),password});
           if(error)throw error;
         } else {
-          const {error}=await sb.auth.signUp({email,password});
+          const {data:existing}=await sb.from('profiles').select('id').eq('email_address',mailboxAddr).maybeSingle();
+          if(existing){showErr('That mailbox address is already taken. Choose another.');abtn.disabled=false;abtn.textContent='Create account →';return;}
+          const {data,error}=await sb.auth.signUp({email:realEmail.trim(),password});
           if(error)throw error;
-          showOk('Account created! Check your email to confirm (or sign in if confirmation is disabled).');
+          if(data?.user){
+            await sb.from('profiles').update({email_address:mailboxAddr,display_name:username.trim()}).eq('id',data.user.id);
+          }
+          showOk('Account created! Signing you in...');
         }
-      } catch(e){ showErr(e.message||'Something went wrong.'); abtn.disabled=false; abtn.textContent=tab==='login'?'Sign in →':'Create account →'; }
+      } catch(e){showErr(e.message||'Something went wrong.');abtn.disabled=false;abtn.textContent=tab==='login'?'Sign in →':'Create account →';}
     };
 
-    // domain section
-    card.appendChild(el('div',{class:'divider'},'— your domains —'));
-    const dsec=el('div',{class:'dsec'});
-    dsec.appendChild(el('div',{class:'dsec-title'},'Choose or add your domain'));
-    const dpills=el('div',{class:'dpills'});
-    domains.forEach(d=>{
-      const pill=el('div',{class:'dpill'+(d===domain?' sel':'')},d);
-      pill.onclick=()=>{domain=d;dsel.value=d;rebuild();};
-      if(!FREE_DOMAINS.includes(d)){
-        const x=el('button',{class:'dpill-x'},'×');
-        x.onclick=e=>{e.stopPropagation();domains=domains.filter(x=>x!==d);if(domain===d)domain=domains[0];rebuild();};
-        pill.appendChild(x);
-      }
-      dpills.appendChild(pill);
-    });
-    dsec.appendChild(dpills);
-    const darow=el('div',{class:'dadd-row'});
-    const dainp=el('input',{class:'dadd-inp',placeholder:'yourcompany.com'});
-    dainp.oninput=e=>customInp=e.target.value;
-    dainp.value=customInp;
-    const dabtn=el('button',{class:'dadd-btn'},'+ Add');
-    dabtn.onclick=()=>{
-      let d=customInp.trim(); if(!d)return;
-      if(!d.startsWith('@'))d='@'+d;
-      if(!/^@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(d)){showErr('Invalid domain format.');return;}
-      if(!domains.includes(d)){domains.push(d);}
-      domain=d; customInp=''; rebuild();
-    };
-    dainp.onkeydown=e=>e.key==='Enter'&&dabtn.click();
-    darow.appendChild(dainp); darow.appendChild(dabtn); dsec.appendChild(darow);
-    dsec.appendChild(el('div',{class:'dhint'},'Custom domains are free. Point MX → mx.mailbox.io in production.'));
-    card.appendChild(dsec);
-
-    uinp.focus();
+    if(tab==='login'){
+      card.appendChild(el('div',{class:'dhint',style:'margin-top:10px;text-align:center'},'Sign in with the real email you used to create your account'));
+    }
   }
   rebuild();
   return screen;
