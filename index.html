@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Mailbox</title>
-<!-- Supabase JS SDK -->
+<title>Socialbox</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -20,138 +19,166 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg0);color:var(--text);height:100vh;overflow:hidden}
 #root{height:100vh;display:flex;flex-direction:column}
 
-/* ── LOADING ── */
+/* LOADING */
 .loading{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:var(--text3)}
 .spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── AUTH ── */
-.auth-screen{flex:1;display:flex;align-items:center;justify-content:center}
-.auth-card{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:40px;width:460px;max-width:95vw}
-.logo{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;margin-bottom:4px}
+/* AUTH */
+.auth-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:16px}
+.auth-card{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:32px;width:400px;max-width:100%}
+.logo{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;margin-bottom:4px}
 .logo span{color:var(--accent)}
-.auth-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.auth-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
 .tabs{display:flex;gap:8px;margin-bottom:20px}
-.tab{flex:1;padding:8px;background:none;border:1px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s}
+.tab{flex:1;padding:8px;background:none;border:1px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer}
 .tab.active{background:var(--bg3);border-color:var(--border2);color:var(--text)}
-label.lbl{font-size:12px;color:var(--text2);display:block;margin-bottom:5px}
-.inp{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-family:inherit;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;transition:border-color .15s}
+.lbl{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;margin-top:12px}
+.inp{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-family:inherit;font-size:14px;color:var(--text);outline:none}
 .inp:focus{border-color:var(--accent)}
-.urow{display:flex;margin-bottom:12px}
-.urow .inp{margin-bottom:0;border-radius:var(--rs) 0 0 var(--rs);border-right:none;flex:1}
-.dsel{background:var(--bg2);border:1px solid var(--border);border-radius:0 var(--rs) var(--rs) 0;padding:10px 10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);outline:none;cursor:pointer;min-width:155px}
-.dsel option{background:var(--bg2)}
-.btn-primary{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;margin-top:4px}
+.btn-primary{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;margin-top:16px}
 .btn-primary:hover{background:var(--accent2)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.err{font-size:12px;color:var(--red);background:#2d1515;border:1px solid #5c2222;border-radius:var(--rs);padding:8px 12px;margin-bottom:10px}
-.ok{font-size:12px;color:var(--green);background:#132415;border:1px solid #1e4d24;border-radius:var(--rs);padding:8px 12px;margin-bottom:10px}
-.divider{text-align:center;font-size:12px;color:var(--text3);margin:14px 0}
+.auth-err{font-size:12px;color:var(--red);background:#2d1515;border:1px solid #5c2222;border-radius:var(--rs);padding:8px 12px;margin-top:10px}
 
-/* domain section */
-.dsec{margin-top:18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
-.dsec-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-.dpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.dpill{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);cursor:pointer;transition:all .1s}
-.dpill:hover{border-color:var(--accent)}
-.dpill.sel{border-color:var(--accent);color:var(--accent);background:#0e1a3a}
-.dpill-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:0}
-.dpill-x:hover{color:var(--red)}
-.dadd-row{display:flex;gap:8px}
-.dadd-inp{flex:1;background:var(--bg0);border:1px solid var(--border);border-radius:var(--rs);padding:8px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);outline:none}
-.dadd-inp:focus{border-color:var(--accent)}
-.dadd-inp::placeholder{color:var(--text3)}
-.dadd-btn{padding:8px 14px;background:var(--accent);border:none;border-radius:var(--rs);font-family:inherit;font-size:12px;color:#fff;cursor:pointer;font-weight:500;white-space:nowrap}
-.dadd-btn:hover{background:var(--accent2)}
-.dhint{font-size:11px;color:var(--text3);margin-top:8px}
-
-/* ── APP LAYOUT ── */
+/* APP LAYOUT */
 .app{display:flex;height:100%;overflow:hidden}
+
+/* SIDEBAR */
 .sidebar{width:220px;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.sb-head{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
-.sb-logo{font-family:'DM Mono',monospace;font-size:15px;font-weight:500}
-.sb-logo span{color:var(--accent)}
-.sb-addr{font-size:11px;color:var(--text2);margin-top:3px;font-family:'DM Mono',monospace;word-break:break-all}
-.compose-btn{margin:10px 14px;padding:9px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer}
-.compose-btn:hover{background:var(--accent2)}
-.nav{padding:6px 0;flex:1;overflow-y:auto}
+.sb-head{padding:18px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-handle{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace}
+.new-post-btn{margin:10px 14px;padding:9px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer}
+.new-post-btn:hover{background:var(--accent2)}
+.nav{padding:6px 0;flex:1}
 .ni{display:flex;align-items:center;gap:9px;padding:8px 14px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .1s;position:relative}
 .ni:hover{background:var(--bg2);color:var(--text)}
 .ni.active{background:var(--bg3);color:var(--text)}
-.ni svg{width:14px;height:14px;flex-shrink:0;opacity:.7}
+.ni svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
 .ni.active svg{opacity:1}
 .nbadge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600}
 .sb-foot{padding:12px 14px;border-top:1px solid var(--border)}
 .so-btn{width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:12px;color:var(--text3);cursor:pointer}
 .so-btn:hover{color:var(--red);border-color:var(--red)}
 
-.email-list{width:310px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.el-head{padding:12px 16px;border-bottom:1px solid var(--border)}
-.el-title{font-size:14px;font-weight:600;margin-bottom:8px}
-.search{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:7px 12px;font-family:inherit;font-size:13px;color:var(--text);outline:none}
-.search::placeholder{color:var(--text3)}
-.search:focus{border-color:var(--accent)}
-.el-body{overflow-y:auto;flex:1}
-.eitem{padding:13px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;position:relative}
-.eitem:hover{background:var(--bg1)}
-.eitem.active{background:var(--bg2)}
-.eitem.unread::before{content:'';position:absolute;left:7px;top:50%;transform:translateY(-50%);width:5px;height:5px;background:var(--accent);border-radius:50%}
-.ei-r1{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
-.ei-from{font-size:13px;color:var(--text2)}
-.eitem.unread .ei-from{font-weight:600;color:var(--text)}
-.ei-time{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
-.ei-sub{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
-.ei-prev{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.etag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;margin-top:5px}
-.etag-work{background:#1e2d4a;color:#7b96ff}
-.etag-personal{background:#1a2e24;color:#3ecf8e}
-.etag-promo{background:#2d2010;color:#f5a623}
-.empty-list{padding:28px 16px;text-align:center;color:var(--text3);font-size:13px}
+/* FEED */
+.feed-col{flex:1;display:flex;flex-direction:column;overflow:hidden;max-width:600px}
+.feed-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px}
+.feed-body{overflow-y:auto;flex:1;padding:0}
 
-.ev{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.ev-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text3)}
-.ev-empty svg{opacity:.15;width:44px;height:44px}
-.ev-head{padding:22px 28px 14px;border-bottom:1px solid var(--border)}
-.ev-subj{font-size:19px;font-weight:600;margin-bottom:12px;line-height:1.3}
-.ev-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.ev-av{width:34px;height:34px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--accent);flex-shrink:0;font-family:'DM Mono',monospace}
-.ev-si{flex:1}
-.ev-fn{font-size:13px;font-weight:500}
-.ev-fa{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace}
-.ev-t{font-size:12px;color:var(--text3)}
-.ev-acts{display:flex;gap:6px}
-.ev-btn{padding:5px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:12px;color:var(--text2);cursor:pointer;transition:all .1s}
-.ev-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
-.ev-body{padding:22px 28px;flex:1;overflow-y:auto;font-size:14px;line-height:1.8;color:var(--text2);white-space:pre-wrap;word-break:break-word}
+/* POST CARD */
+.post-card{padding:16px 20px;border-bottom:1px solid var(--border);transition:background .1s}
+.post-card:hover{background:var(--bg1)}
+.post-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.post-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;cursor:pointer;font-family:'DM Mono',monospace}
+.post-meta{flex:1}
+.post-name{font-size:13px;font-weight:500;cursor:pointer}
+.post-name:hover{color:var(--accent)}
+.post-handle{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+.post-time{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.post-content{font-size:14px;line-height:1.7;color:var(--text);margin-bottom:12px;white-space:pre-wrap;word-break:break-word;cursor:pointer}
+.post-actions{display:flex;gap:20px}
+.pact{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);cursor:pointer;padding:4px 0;transition:color .1s;background:none;border:none;font-family:inherit}
+.pact:hover{color:var(--text2)}
+.pact.liked{color:var(--red)}
+.pact.commented{color:var(--accent)}
+.pact svg{width:14px;height:14px}
+.pact-del{margin-left:auto;color:var(--text3)}
+.pact-del:hover{color:var(--red)}
 
-/* ── COMPOSE ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:flex-end;padding:18px;z-index:200}
-.cmodal{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--r);width:500px;display:flex;flex-direction:column;overflow:hidden;max-height:500px}
-.cm-head{padding:12px 14px;background:var(--bg2);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.cm-title{font-size:13px;font-weight:600}
-.cm-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1}
-.cm-x:hover{color:var(--text)}
-.cm-field{display:flex;align-items:center;border-bottom:1px solid var(--border);padding:9px 14px;gap:8px}
-.cm-lbl{font-size:12px;color:var(--text3);width:32px;flex-shrink:0}
-.cm-inp{flex:1;background:none;border:none;font-family:inherit;font-size:13px;color:var(--text);outline:none}
-.cm-inp::placeholder{color:var(--text3)}
-.cm-body{flex:1;padding:12px 14px;min-height:160px;background:none;border:none;font-family:inherit;font-size:13px;color:var(--text);outline:none;resize:none;line-height:1.7}
-.cm-body::placeholder{color:var(--text3)}
-.cm-foot{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.send-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer}
-.send-btn:hover{background:var(--accent2)}
-.send-btn:disabled{opacity:.5;cursor:not-allowed}
-.disc-btn{padding:8px 12px;background:none;border:1px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer}
-.disc-btn:hover{border-color:var(--red);color:var(--red)}
-.cm-from{margin-left:auto;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+/* COMPOSE POST */
+.compose-box{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px}
+.compose-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace}
+.compose-right{flex:1}
+.compose-ta{width:100%;background:none;border:none;font-family:inherit;font-size:15px;color:var(--text);outline:none;resize:none;line-height:1.6;min-height:60px}
+.compose-ta::placeholder{color:var(--text3)}
+.compose-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.compose-counter{font-size:12px;color:var(--text3)}
+.compose-counter.warn{color:var(--amber)}
+.compose-counter.over{color:var(--red)}
+.post-btn{padding:7px 18px;background:var(--accent);color:#fff;border:none;border-radius:20px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer}
+.post-btn:hover{background:var(--accent2)}
+.post-btn:disabled{opacity:.4;cursor:not-allowed}
 
-/* ── TOAST ── */
+/* RIGHT PANEL */
+.right-col{width:280px;border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.right-section{padding:16px;border-bottom:1px solid var(--border)}
+.right-title{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text2)}
+.suggest-item{display:flex;align-items:center;gap:10px;padding:8px 0}
+.sug-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace;cursor:pointer}
+.sug-info{flex:1;min-width:0}
+.sug-name{font-size:13px;font-weight:500;cursor:pointer}
+.sug-name:hover{color:var(--accent)}
+.sug-handle{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.follow-btn{padding:5px 12px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--accent);color:var(--accent);background:none}
+.follow-btn:hover{background:var(--accent);color:#fff}
+.follow-btn.following{border-color:var(--border2);color:var(--text2)}
+.follow-btn.following:hover{border-color:var(--red);color:var(--red)}
+
+/* PROFILE VIEW */
+.profile-view{flex:1;overflow-y:auto}
+.profile-header{padding:24px 20px;border-bottom:1px solid var(--border)}
+.profile-top{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.profile-av{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace}
+.profile-names{flex:1}
+.profile-dname{font-size:18px;font-weight:600}
+.profile-handle{font-size:13px;color:var(--text2);font-family:'DM Mono',monospace;margin-top:2px}
+.profile-bio{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.profile-stats{display:flex;gap:20px}
+.stat{text-align:center;cursor:pointer}
+.stat-num{font-size:16px;font-weight:600}
+.stat-lbl{font-size:12px;color:var(--text3)}
+.profile-follow-btn{padding:8px 24px;border-radius:20px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--accent);color:var(--accent);background:none;margin-top:12px}
+.profile-follow-btn:hover{background:var(--accent);color:#fff}
+.profile-follow-btn.following{border-color:var(--border2);color:var(--text2)}
+.profile-follow-btn.following:hover{border-color:var(--red);color:var(--red)}
+.edit-profile-btn{padding:8px 24px;border-radius:20px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--text2);background:none;margin-top:12px}
+.edit-profile-btn:hover{border-color:var(--text);color:var(--text)}
+
+/* COMMENTS */
+.comments-section{padding:12px 20px;border-bottom:1px solid var(--border)}
+.comment-item{display:flex;gap:8px;margin-bottom:10px}
+.comment-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace}
+.comment-body{flex:1}
+.comment-name{font-size:12px;font-weight:500;color:var(--text2)}
+.comment-text{font-size:13px;color:var(--text);line-height:1.5}
+.comment-input-row{display:flex;gap:8px;margin-top:8px}
+.comment-inp{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-family:inherit;font-size:13px;color:var(--text);outline:none}
+.comment-inp:focus{border-color:var(--accent)}
+.comment-inp::placeholder{color:var(--text3)}
+.comment-send{padding:7px 14px;background:var(--accent);border:none;border-radius:20px;font-family:inherit;font-size:12px;color:#fff;cursor:pointer}
+.comment-send:hover{background:var(--accent2)}
+
+/* NOTIFS */
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
+.notif-item.unread{background:var(--bg1)}
+.notif-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+/* SEARCH */
+.search-bar{padding:12px 16px;border-bottom:1px solid var(--border)}
+.search-inp{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:8px 16px;font-family:inherit;font-size:13px;color:var(--text);outline:none}
+.search-inp:focus{border-color:var(--accent)}
+.search-inp::placeholder{color:var(--text3)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--r);width:480px;max-width:100%;overflow:hidden}
+.modal-head{padding:14px 16px;background:var(--bg2);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-title{font-size:14px;font-weight:600}
+.modal-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1}
+.modal-x:hover{color:var(--text)}
+.modal-body{padding:16px}
+
+/* TOAST */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:9px 18px;font-size:13px;color:var(--text);z-index:300;animation:sup .2s ease;white-space:nowrap;pointer-events:none}
 @keyframes sup{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* ── REALTIME DOT ── */
-.rt-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-left:6px;animation:pulse 2s ease infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.empty-state{padding:40px 20px;text-align:center;color:var(--text3);font-size:14px}
+.empty-state .big{font-size:32px;margin-bottom:8px}
 
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -160,539 +187,737 @@ label.lbl{font-size:12px;color:var(--text2);display:block;margin-bottom:5px}
 </head>
 <body>
 <div id="root"></div>
-
 <script>
-// ═══════════════════════════════════════════════════════════
-//  ⚙️  CONFIGURATION — replace with your Supabase credentials
-//  Get them from: Supabase Dashboard → Project → Settings → API
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  PASTE YOUR SUPABASE KEYS HERE
+// ═══════════════════════════════════════════
 const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
 const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
-// ═══════════════════════════════════════════════════════════
-
-const FREE_DOMAINS = ['@mailbox.io','@fastpost.net','@swiftmail.org','@clearpost.me','@inboxly.com'];
+// ═══════════════════════════════════════════
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ── helpers ──────────────────────────────────────────────
-const el = (tag, attrs={}, ...kids) => {
-  const d = document.createElement(tag);
-  for(const [k,v] of Object.entries(attrs)){
-    if(k==='class')d.className=v;
-    else if(k.startsWith('on'))d.addEventListener(k.slice(2).toLowerCase(),v);
-    else d.setAttribute(k,v);
-  }
-  kids.forEach(k=>d.appendChild(typeof k==='string'?document.createTextNode(k):k));
-  return d;
-};
-const qs = s => document.querySelector(s);
+const COLORS = ['#5b7fff','#3ecf8e','#f46b6b','#f5a623','#a78bfa','#38bdf8','#fb7185','#34d399'];
+function colorFor(str){ let h=0; for(let c of (str||'?'))h=(h*31+c.charCodeAt(0))%COLORS.length; return COLORS[h]; }
+function initials(str){ return (str||'?').slice(0,2).toUpperCase(); }
+function timeAgo(ts){
+  const s=Math.floor((Date.now()-new Date(ts))/1000);
+  if(s<60)return s+'s'; if(s<3600)return Math.floor(s/60)+'m';
+  if(s<86400)return Math.floor(s/3600)+'h';
+  return Math.floor(s/86400)+'d';
+}
 
+const mk=(tag,cls,...kids)=>{ const d=document.createElement(tag); if(cls)d.className=cls; kids.forEach(k=>d.appendChild(typeof k==='string'?document.createTextNode(k):k)); return d; };
+const qs=s=>document.querySelector(s);
 let toastTimer;
-function toast(msg){
-  const old=qs('.toast');if(old)old.remove();clearTimeout(toastTimer);
-  const t=el('div',{class:'toast'},msg);
-  document.body.appendChild(t);
-  toastTimer=setTimeout(()=>t.remove(),2600);
-}
+function toast(msg){ const old=qs('.toast');if(old)old.remove();clearTimeout(toastTimer); const t=mk('div','toast',msg);document.body.appendChild(t);toastTimer=setTimeout(()=>t.remove(),2600); }
 
-function fmtTime(ts){
-  const d=new Date(ts), now=new Date();
-  if(d.toDateString()===now.toDateString())
-    return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  const diff=(now-d)/864e5;
-  if(diff<7) return d.toLocaleDateString([],{weekday:'short'});
-  return d.toLocaleDateString([],{month:'short',day:'numeric'});
-}
-
-// ── STATE ────────────────────────────────────────────────
-let state = {
-  user: null, profile: null,
-  folder: 'inbox', emails: [],
-  selected: null, composing: false,
-  search: '', loading: true,
-  replyTo: null, replySub: '',
+// STATE
+let S={
+  user:null, profile:null,
+  page:'feed', // feed | notifications | search | profile
+  posts:[], allProfiles:[], follows:[],
+  notifications:[], likes:new Set(),
+  openPostId:null, viewUserId:null,
+  loading:true, editModal:false,
+  searchQ:'', searchResults:[],
 };
-let realtimeSub = null;
+let channels=[];
 
-// ── RENDER ───────────────────────────────────────────────
 function render(){
   const root=qs('#root'); root.innerHTML='';
-  if(state.loading){ root.appendChild(renderLoading()); return; }
-  if(!state.user){   root.appendChild(renderAuth());    return; }
+  if(S.loading){root.appendChild(renderLoading());return;}
+  if(!S.user){root.appendChild(renderAuth());return;}
   root.appendChild(renderApp());
 }
 
 function renderLoading(){
-  const w=el('div',{class:'loading'});
-  w.appendChild(el('div',{class:'spinner'}));
-  w.appendChild(el('span',{},'Loading mailbox...'));
+  const w=mk('div','loading');
+  w.appendChild(mk('div','spinner'));
+  w.appendChild(mk('span','','Loading...'));
   return w;
 }
 
-// ── AUTH ──────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════
 function renderAuth(){
-  let tab='login', domain=FREE_DOMAINS[0], domains=[...FREE_DOMAINS];
-  let username='', realEmail='', password='', confirm='', customInp='';
-
-  const screen=el('div',{class:'auth-screen'});
-  const card=el('div',{class:'auth-card'});
+  let tab='login', user='', pass='', pass2='', dispName='';
+  const screen=mk('div','auth-screen');
+  const card=mk('div','auth-card');
   screen.appendChild(card);
+  const msgDiv=mk('div','');
+  card.appendChild(msgDiv);
+  function showErr(m){msgDiv.innerHTML='';msgDiv.appendChild(mk('div','auth-err',m));}
+  function clearMsg(){msgDiv.innerHTML='';}
 
-  function rebuild(){
-    card.innerHTML='';
-    const logo=el('div',{class:'logo'},'mail'); logo.appendChild(el('span',{},'box')); card.appendChild(logo);
-    card.appendChild(el('div',{class:'auth-sub'},'Free & custom domain email — forever free.'));
+  function build(){
+    Array.from(card.children).forEach(c=>{if(c!==msgDiv)c.remove();}); clearMsg();
 
-    const tabs=el('div',{class:'tabs'});
+    const logo=mk('div','logo','social'); logo.appendChild(mk('span','','box'));
+    card.insertBefore(logo,msgDiv);
+    card.insertBefore(mk('div','auth-sub','Share moments with the world.'),msgDiv);
+
+    const tabs=mk('div','tabs');
     ['login','create'].forEach(t=>{
-      const b=el('button',{class:'tab'+(tab===t?' active':'')},t==='login'?'Sign in':'Create account');
-      b.onclick=()=>{tab=t;rebuild();};
+      const b=mk('button','tab'+(tab===t?' active':''),t==='login'?'Sign in':'Join');
+      b.onclick=()=>{tab=t;build();};
       tabs.appendChild(b);
     });
-    card.appendChild(tabs);
+    card.insertBefore(tabs,msgDiv);
 
-    const msgArea=el('div',{id:'auth-msg'});
-    card.appendChild(msgArea);
-    function showErr(m){msgArea.innerHTML='';msgArea.appendChild(el('div',{class:'err'},m));}
-    function showOk(m){msgArea.innerHTML='';msgArea.appendChild(el('div',{class:'ok'},m));}
+    // ── OAUTH BUTTONS ──────────────────────
+    const oauthDiv=mk('div','');
+    oauthDiv.style.cssText='display:flex;flex-direction:column;gap:8px;margin-bottom:4px';
 
-    if(tab==='login'){
-      // Simple email input for login
-      card.appendChild(el('label',{class:'lbl'},'Your email address'));
-      const loginEmail=el('input',{class:'inp',type:'text',placeholder:'yourname@mailbox.io',value:username+domain});
-      loginEmail.oninput=e=>{
-        const val=e.target.value.trim();
-        const atIdx=val.lastIndexOf('@');
-        if(atIdx>0){username=val.slice(0,atIdx);domain=val.slice(atIdx);}
-        else username=val;
-      };
-      card.appendChild(loginEmail);
-    } else {
-      // Username + domain picker for signup
-      card.appendChild(el('label',{class:'lbl'},'Your mailbox address'));
-      const urow=el('div',{class:'urow'});
-      const uinp=el('input',{class:'inp',placeholder:'yourname',value:username});
-      uinp.oninput=e=>username=e.target.value;
-      const dsel=el('select',{class:'dsel'});
-      domains.forEach(d=>{const o=el('option',{value:d},d);if(d===domain)o.selected=true;dsel.appendChild(o);});
-      dsel.onchange=e=>domain=e.target.value;
-      urow.appendChild(uinp); urow.appendChild(dsel); card.appendChild(urow);
-    }
+    const gBtn=mk('button','');
+    gBtn.style.cssText='width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .15s';
+    gBtn.onmouseover=()=>gBtn.style.borderColor='var(--border2)';
+    gBtn.onmouseout=()=>gBtn.style.borderColor='var(--border)';
+    gBtn.innerHTML=`<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google`;
+    gBtn.onclick=async()=>{
+      const {error}=await sb.auth.signInWithOAuth({
+        provider:'google',
+        options:{redirectTo:window.location.href}
+      });
+      if(error)showErr(error.message);
+    };
+    oauthDiv.appendChild(gBtn);
 
+    const fbBtn=mk('button','');
+    fbBtn.style.cssText='width:100%;padding:10px 14px;background:#1877f2;border:1px solid #1877f2;border-radius:var(--rs);font-family:inherit;font-size:14px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s';
+    fbBtn.onmouseover=()=>fbBtn.style.opacity='.85';
+    fbBtn.onmouseout=()=>fbBtn.style.opacity='1';
+    fbBtn.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>Continue with Facebook`;
+    fbBtn.onclick=async()=>{
+      const {error}=await sb.auth.signInWithOAuth({
+        provider:'facebook',
+        options:{redirectTo:window.location.href}
+      });
+      if(error)showErr(error.message);
+    };
+    oauthDiv.appendChild(fbBtn);
+
+    card.appendChild(oauthDiv);
+
+    // divider
+    const divRow=mk('div','');
+    divRow.style.cssText='display:flex;align-items:center;gap:10px;margin:4px 0';
+    const line1=mk('div','');line1.style.cssText='flex:1;height:1px;background:var(--border)';
+    const line2=mk('div','');line2.style.cssText='flex:1;height:1px;background:var(--border)';
+    const orTxt=mk('span','');orTxt.style.cssText='font-size:12px;color:var(--text3);white-space:nowrap';
+    orTxt.textContent='or continue with username';
+    divRow.appendChild(line1);divRow.appendChild(orTxt);divRow.appendChild(line2);
+    card.appendChild(divRow);
+
+    // ── USERNAME FORM ──────────────────────
     if(tab==='create'){
-      // Domain pills — no rebuild on interaction, update DOM directly
-      const dsec=el('div',{class:'dsec',style:'margin-bottom:14px'});
-      const dpills=el('div',{class:'dpills',id:'dpills-container'});
-
-      function renderPills(){
-        dpills.innerHTML='';
-        domains.forEach(d=>{
-          const pill=el('div',{class:'dpill'+(d===domain?' sel':'')},d);
-          pill.onclick=()=>{
-            domain=d;
-            if(dsel)dsel.value=d;
-            renderPills();
-          };
-          if(!FREE_DOMAINS.includes(d)){
-            const x=el('button',{class:'dpill-x'},'×');
-            x.onclick=e=>{
-              e.stopPropagation();
-              domains=domains.filter(i=>i!==d);
-              if(domain===d)domain=domains[0];
-              renderPills();
-            };
-            pill.appendChild(x);
-          }
-          dpills.appendChild(pill);
-        });
-      }
-      renderPills();
-      dsec.appendChild(dpills);
-
-      const darow=el('div',{class:'dadd-row'});
-      const dainp=document.createElement('input');
-      dainp.className='dadd-inp';
-      dainp.placeholder='type domain e.g. mycompany.com';
-      dainp.type='text';
-      dainp.autocomplete='off';
-      dainp.spellcheck=false;
-
-      const dabtn=el('button',{class:'dadd-btn'},'+ Add');
-      dabtn.type='button';
-      dabtn.onclick=()=>{
-        let d=dainp.value.trim();
-        if(!d)return;
-        if(!d.startsWith('@'))d='@'+d;
-        if(!/^@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(d)){showErr('Invalid domain. Example: mycompany.com');return;}
-        if(!domains.includes(d))domains.push(d);
-        domain=d;
-        if(dsel){
-          const o=el('option',{value:d},d);
-          dsel.appendChild(o);
-          dsel.value=d;
-        }
-        dainp.value='';
-        renderPills();
-      };
-      dainp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();dabtn.click();}};
-      darow.appendChild(dainp);darow.appendChild(dabtn);dsec.appendChild(darow);
-      dsec.appendChild(el('div',{class:'dhint'},'This is your in-app email address e.g. yourname@mycompany.com'));
-      card.appendChild(dsec);
-
-
+      card.appendChild(mk('label','lbl','Display name'));
+      const di=mk('input','inp');di.placeholder='Your Name';di.value=dispName;di.oninput=e=>dispName=e.target.value;card.appendChild(di);
     }
-
-    card.appendChild(el('label',{class:'lbl'},'Password'));
-    const pinp=el('input',{class:'inp',type:'password',placeholder:tab==='login'?'Enter password':'Create a password',value:password});
-    pinp.oninput=e=>password=e.target.value;
-    card.appendChild(pinp);
-
+    card.appendChild(mk('label','lbl','Username'));
+    const ui=mk('input','inp');ui.placeholder='yourname';ui.value=user;ui.autocomplete='username';
+    ui.oninput=e=>user=e.target.value;card.appendChild(ui);
+    card.appendChild(mk('label','lbl','Password'));
+    const pi=mk('input','inp');pi.type='password';pi.placeholder='Password';pi.value=pass;
+    pi.oninput=e=>pass=e.target.value;card.appendChild(pi);
     if(tab==='create'){
-      card.appendChild(el('label',{class:'lbl'},'Confirm password'));
-      const cinp=el('input',{class:'inp',type:'password',placeholder:'Repeat password',value:confirm});
-      cinp.oninput=e=>confirm=e.target.value;
-      card.appendChild(cinp);
+      card.appendChild(mk('label','lbl','Confirm password'));
+      const pi2=mk('input','inp');pi2.type='password';pi2.placeholder='Repeat password';pi2.value=pass2;
+      pi2.oninput=e=>pass2=e.target.value;card.appendChild(pi2);
     }
-
-    const abtn=el('button',{class:'btn-primary'},tab==='login'?'Sign in →':'Create account →');
-    card.appendChild(abtn);
-
-    abtn.onclick=async()=>{
-      msgArea.innerHTML='';
-      if(!username.trim()){showErr('Enter a username.');return;}
-      if(!password.trim()){showErr('Enter a password.');return;}
-      if(tab==='create'&&password!==confirm){showErr('Passwords do not match.');return;}
-      abtn.disabled=true;abtn.textContent='Please wait...';
-      const mailboxAddr=username.trim()+domain;
-      // Use project domain for internal auth email — always passes validation
-      const projectDomain=SUPABASE_URL.replace('https://','').replace('http://','');
-      const internalEmail=username.trim().toLowerCase().replace(/[^a-z0-9]/g,'')+'@'+projectDomain;
+    const btn=mk('button','btn-primary',tab==='login'?'Sign in →':'Create account →');
+    btn.onclick=async()=>{
+      clearMsg();
+      if(!user.trim()){showErr('Enter a username.');return;}
+      if(!pass){showErr('Enter a password.');return;}
+      if(tab==='create'&&pass!==pass2){showErr('Passwords do not match.');return;}
+      btn.disabled=true;btn.textContent='Please wait...';
+      const proj=SUPABASE_URL.replace('https://','').replace('http://','');
+      const email=user.trim().toLowerCase().replace(/[^a-z0-9]/g,'')+'@'+proj;
       try{
         if(tab==='login'){
-          const {error}=await sb.auth.signInWithPassword({email:internalEmail,password});
-          if(error){
-            // fallback: try legacy real-email login
-            const {error:e2}=await sb.auth.signInWithPassword({email:realEmail.trim()||internalEmail,password});
-            if(e2)throw error;
-          }
+          const {error}=await sb.auth.signInWithPassword({email,password:pass});
+          if(error)throw error;
         } else {
-          const {data:existing}=await sb.from('profiles').select('id').eq('email_address',mailboxAddr).maybeSingle();
-          if(existing){showErr('That mailbox address is already taken. Choose another.');abtn.disabled=false;abtn.textContent='Create account →';return;}
-          const {data,error}=await sb.auth.signUp({email:internalEmail,password});
+          const {data:ex}=await sb.from('profiles').select('id').eq('username',user.trim()).maybeSingle();
+          if(ex){showErr('Username taken.');btn.disabled=false;btn.textContent='Create account →';return;}
+          const {data,error}=await sb.auth.signUp({email,password:pass});
           if(error)throw error;
           if(data?.user){
-            await sb.from('profiles').update({email_address:mailboxAddr,display_name:username.trim()}).eq('id',data.user.id);
+            await sb.from('profiles').update({username:user.trim(),display_name:dispName||user.trim(),avatar_color:colorFor(user.trim())}).eq('id',data.user.id);
           }
-          showOk('Account created! Signing you in...');
         }
-      } catch(e){showErr(e.message||'Something went wrong.');abtn.disabled=false;abtn.textContent=tab==='login'?'Sign in →':'Create account →';}
+      } catch(e){showErr(e.message||'Something went wrong.');btn.disabled=false;btn.textContent=tab==='login'?'Sign in →':'Create account →';}
     };
+    card.appendChild(btn);
+    ui.focus();
   }
-  rebuild();
+  build();
   return screen;
 }
 
-// ── APP ───────────────────────────────────────────────────
+
+// ══════════════════════════════════════════
+//  APP
+// ══════════════════════════════════════════
 function renderApp(){
-  const app=el('div',{class:'app'});
+  const app=mk('div','app');
+  app.appendChild(renderSidebar());
 
-  // SIDEBAR
-  const sidebar=el('div',{class:'sidebar'});
-  const sbh=el('div',{class:'sb-head'});
-  const sbl=el('div',{class:'sb-logo'},'mail'); sbl.appendChild(el('span',{},'box'));
-  const sba=el('div',{class:'sb-addr'},state.profile?.email_address||state.user?.email||'');
-  sbh.appendChild(sbl); sbh.appendChild(sba);
-  sidebar.appendChild(sbh);
+  if(S.page==='feed')        app.appendChild(renderFeedCol());
+  else if(S.page==='notifications') app.appendChild(renderNotifsCol());
+  else if(S.page==='search') app.appendChild(renderSearchCol());
+  else if(S.page==='profile'){ app.appendChild(renderProfileCol(S.viewUserId||S.profile?.id)); }
 
-  const cb=el('button',{class:'compose-btn'},'✏  Compose');
-  cb.onclick=()=>{state.composing=true;state.replyTo='';state.replySub='';render();};
-  sidebar.appendChild(cb);
-
-  const nav=el('div',{class:'nav'});
-  const FOLDERS=[
-    {key:'inbox',label:'Inbox',icon:'M2 6h12v8H2zM2 6l6 5 6-5'},
-    {key:'sent',label:'Sent',icon:'M15 2L1 7l5 2 2 5 7-12z'},
-    {key:'drafts',label:'Drafts',icon:'M2 2h12v12H2zM5 6h6M5 9h4'},
-    {key:'starred',label:'Starred',icon:'M8 2l1.8 3.6 4.2.6-3 2.9.7 4.1L8 11.3l-3.7 1.9.7-4.1-3-2.9 4.2-.6z'},
-    {key:'trash',label:'Trash',icon:'M3 4h10M5 4V3h6v1M6 7v4M10 7v4M4 4l1 9h6l1-9'},
-  ];
-  FOLDERS.forEach(f=>{
-    const count=f.key==='inbox'?state.emails.filter(e=>e.folder==='inbox'&&!e.is_read).length:0;
-    const ni=el('div',{class:'ni'+(state.folder===f.key?' active':'')});
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('viewBox','0 0 16 16');svg.setAttribute('fill','none');
-    svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.5');
-    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d',f.icon);svg.appendChild(path);
-    ni.appendChild(svg);
-    ni.appendChild(document.createTextNode(f.label));
-    if(count>0){const b=el('span',{class:'nbadge'},String(count));ni.appendChild(b);}
-    ni.onclick=()=>{state.folder=f.key;state.selected=null;state.search='';render();};
-    nav.appendChild(ni);
-  });
-  sidebar.appendChild(nav);
-
-  const foot=el('div',{class:'sb-foot'});
-  const so=el('button',{class:'so-btn'},'Sign out');
-  so.onclick=async()=>{await sb.auth.signOut();};
-  foot.appendChild(so);
-  sidebar.appendChild(foot);
-  app.appendChild(sidebar);
-
-  // EMAIL LIST
-  const el2=el('div',{class:'email-list'});
-  const elh=el('div',{class:'el-head'});
-  const titleRow=el('div',{style:'display:flex;align-items:center'});
-  titleRow.appendChild(el('div',{class:'el-title'},state.folder.charAt(0).toUpperCase()+state.folder.slice(1)));
-  // realtime indicator
-  const rtd=document.createElement('span');
-  rtd.className='rt-dot'; rtd.title='Live updates on';
-  titleRow.appendChild(rtd);
-  elh.appendChild(titleRow);
-  const srch=document.createElement('input');
-  srch.className='search'; srch.placeholder='Search...'; srch.value=state.search;
-  srch.oninput=e=>{state.search=e.target.value;renderEmailList(elbody,getFiltered());};
-  elh.appendChild(srch);
-  el2.appendChild(elh);
-  const elbody=el('div',{class:'el-body'});
-  renderEmailList(elbody,getFiltered());
-  el2.appendChild(elbody);
-  app.appendChild(el2);
-
-  // EMAIL VIEW
-  const ev=el('div',{class:'ev'});
-  if(!state.selected){
-    const emp=el('div',{class:'ev-empty'});
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('fill','none');
-    svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.5');
-    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
-    r.setAttribute('x','4');r.setAttribute('y','8');r.setAttribute('width','40');r.setAttribute('height','32');r.setAttribute('rx','4');
-    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-    p.setAttribute('d','M4 16l20 12 20-12');
-    svg.appendChild(r);svg.appendChild(p);
-    emp.appendChild(svg);
-    emp.appendChild(el('span',{},'Select an email to read'));
-    ev.appendChild(emp);
-  } else {
-    const email=state.selected;
-    const evh=el('div',{class:'ev-head'});
-    evh.appendChild(el('div',{class:'ev-subj'},email.subject));
-    const meta=el('div',{class:'ev-meta'});
-    const av=el('div',{class:'ev-av'},email.from_addr.slice(0,2).toUpperCase());
-    const si=el('div',{class:'ev-si'});
-    si.appendChild(el('div',{class:'ev-fn'},email.from_addr.split('@')[0]));
-    si.appendChild(el('div',{class:'ev-fa'},email.from_addr));
-    meta.appendChild(av); meta.appendChild(si);
-    meta.appendChild(el('div',{class:'ev-t'},fmtTime(email.created_at)));
-    const acts=el('div',{class:'ev-acts'});
-
-    const replyBtn=el('button',{class:'ev-btn'},'Reply');
-    replyBtn.onclick=()=>{state.composing=true;state.replyTo=email.from_addr;state.replySub='Re: '+email.subject;render();};
-    acts.appendChild(replyBtn);
-
-    const starBtn=el('button',{class:'ev-btn'},email.is_starred?'★ Starred':'☆ Star');
-    starBtn.onclick=async()=>{
-      await sb.from('emails').update({is_starred:!email.is_starred}).eq('id',email.id);
-      email.is_starred=!email.is_starred;
-      const idx=state.emails.findIndex(e=>e.id===email.id);
-      if(idx>=0)state.emails[idx].is_starred=email.is_starred;
-      render();
-    };
-    acts.appendChild(starBtn);
-
-    const delBtn=el('button',{class:'ev-btn',style:'color:var(--red)'},'Delete');
-    delBtn.onclick=async()=>{
-      if(email.folder==='trash'){
-        await sb.from('emails').delete().eq('id',email.id);
-      } else {
-        await sb.from('emails').update({folder:'trash'}).eq('id',email.id);
-      }
-      state.emails=state.emails.filter(e=>e.id!==email.id);
-      state.selected=null;
-      toast(email.folder==='trash'?'Permanently deleted':'Moved to trash');
-      render();
-    };
-    acts.appendChild(delBtn);
-    meta.appendChild(acts);
-    evh.appendChild(meta);
-    ev.appendChild(evh);
-    const evb=el('div',{class:'ev-body'},email.body||'(no content)');
-    ev.appendChild(evb);
-  }
-  app.appendChild(ev);
-
-  // COMPOSE
-  if(state.composing){
-    let cto=state.replyTo||'', csub=state.replySub||'', cbody='', sending=false;
-    const overlay=el('div',{class:'overlay'});
-    overlay.onclick=e=>{if(e.target===overlay){state.composing=false;render();}};
-    const modal=el('div',{class:'cmodal'});
-    const cmh=el('div',{class:'cm-head'});
-    cmh.appendChild(el('span',{class:'cm-title'},'New message'));
-    const cx=el('button',{class:'cm-x'},'×'); cx.onclick=()=>{state.composing=false;render();};
-    cmh.appendChild(cx); modal.appendChild(cmh);
-
-    function cfield(lbl,val,ph,cb){
-      const f=el('div',{class:'cm-field'});
-      f.appendChild(el('span',{class:'cm-lbl'},lbl));
-      const i=document.createElement('input');
-      i.className='cm-inp'; i.value=val; i.placeholder=ph;
-      i.oninput=e=>cb(e.target.value);
-      f.appendChild(i); modal.appendChild(f);
-      return i;
-    }
-    const toInp=cfield('To',cto,'recipient@domain.com',v=>cto=v);
-    cfield('Cc','','cc (optional)',()=>{});
-    cfield('Sub',csub,'Subject',v=>csub=v);
-    const tbody=document.createElement('textarea');
-    tbody.className='cm-body'; tbody.placeholder='Write your message here...';
-    tbody.oninput=e=>cbody=e.target.value;
-    modal.appendChild(tbody);
-    const cmf=el('div',{class:'cm-foot'});
-    const sbtn=el('button',{class:'send-btn'},'Send →');
-    sbtn.onclick=async()=>{
-      if(!cto.trim()){toast('Enter a recipient.');return;}
-      if(!csub.trim()){toast('Enter a subject.');return;}
-      if(sending)return; sending=true; sbtn.disabled=true; sbtn.textContent='Sending...';
-      try{
-        const myAddr=state.profile?.email_address||state.user?.email;
-        // Save to Sent
-        const {error:e1}=await sb.from('emails').insert({
-          owner_id:state.user.id,from_addr:myAddr,to_addr:cto.trim(),
-          subject:csub.trim(),body:cbody,folder:'sent',is_read:true,tag:null
-        });
-        if(e1)throw e1;
-        // Deliver to recipient inbox (RPC)
-        await sb.rpc('deliver_email',{p_from:myAddr,p_to:cto.trim(),p_subject:csub.trim(),p_body:cbody,p_tag:null});
-        state.composing=false;
-        toast('Email sent ✓');
-        await loadEmails();
-        render();
-      } catch(e){ toast('Error: '+e.message); sending=false; sbtn.disabled=false; sbtn.textContent='Send →'; }
-    };
-    const dbtn=el('button',{class:'disc-btn'},'Discard');
-    dbtn.onclick=()=>{state.composing=false;render();};
-    const fromLabel=el('span',{class:'cm-from'},state.profile?.email_address||'');
-    cmf.appendChild(sbtn); cmf.appendChild(dbtn); cmf.appendChild(fromLabel);
-    modal.appendChild(cmf);
-    overlay.appendChild(modal);
-    app.appendChild(overlay);
-    setTimeout(()=>toInp.focus(),50);
-  }
+  if(S.page==='feed') app.appendChild(renderRightCol());
+  if(S.editModal)     app.appendChild(renderEditModal());
 
   return app;
 }
 
-function getFiltered(){
-  return state.emails.filter(e=>{
-    if(e.folder!==state.folder)return false;
-    if(!state.search)return true;
-    const q=state.search.toLowerCase();
-    return e.subject?.toLowerCase().includes(q)||
-           e.from_addr?.toLowerCase().includes(q)||
-           e.body?.toLowerCase().includes(q);
-  });
-}
+// ── SIDEBAR ───────────────────────────────
+function renderSidebar(){
+  const sb2=mk('div','sidebar');
+  const sbh=mk('div','sb-head');
+  const av=mk('div','sb-av',initials(S.profile?.display_name||S.profile?.username));
+  av.style.background=S.profile?.avatar_color||'#5b7fff';
+  av.onclick=()=>goProfile(S.profile?.id);
+  const info=mk('div','sb-info');
+  info.appendChild(mk('div','sb-name',S.profile?.display_name||S.profile?.username||''));
+  const handle=mk('div','sb-handle','@'+(S.profile?.username||''));
+  info.appendChild(handle);
+  sbh.appendChild(av); sbh.appendChild(info);
+  sb2.appendChild(sbh);
 
-function renderEmailList(container, filtered){
-  container.innerHTML='';
-  if(filtered.length===0){
-    container.appendChild(el('div',{class:'empty-list'},state.search?'No results':'This folder is empty'));
-    return;
-  }
-  filtered.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-  filtered.forEach(email=>{
-    const item=el('div',{class:'eitem'+((!email.is_read&&email.folder==='inbox')?' unread':'')+(state.selected?.id===email.id?' active':'')});
-    const r1=el('div',{class:'ei-r1'});
-    r1.appendChild(el('span',{class:'ei-from'},email.from_addr?.split('@')[0]||'Unknown'));
-    r1.appendChild(el('span',{class:'ei-time'},fmtTime(email.created_at)));
-    item.appendChild(r1);
-    item.appendChild(el('div',{class:'ei-sub'},email.subject||'(no subject)'));
-    item.appendChild(el('div',{class:'ei-prev'},(email.body||'').slice(0,80)));
-    if(email.tag)item.appendChild(el('span',{class:'etag etag-'+email.tag},email.tag));
-    item.onclick=async()=>{
-      state.selected=email;
-      if(!email.is_read&&email.folder==='inbox'){
-        await sb.from('emails').update({is_read:true}).eq('id',email.id);
-        email.is_read=true;
-      }
-      render();
+  const npb=mk('button','new-post-btn','+ New Post');
+  npb.onclick=()=>{S.page='feed';render();setTimeout(()=>{const ta=qs('.compose-ta');if(ta)ta.focus();},50);};
+  sb2.appendChild(npb);
+
+  const nav=mk('div','nav');
+  const unreadNotifs=S.notifications.filter(n=>!n.is_read).length;
+  const PAGES=[
+    {key:'feed',label:'Feed',icon:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'},
+    {key:'search',label:'Explore',icon:'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35'},
+    {key:'notifications',label:'Notifications',icon:'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0',count:unreadNotifs},
+    {key:'profile',label:'Profile',icon:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8'},
+  ];
+  PAGES.forEach(pg=>{
+    const ni=mk('div','ni'+(S.page===pg.key?' active':''));
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');
+    svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2');
+    svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',pg.icon);svg.appendChild(p);
+    ni.appendChild(svg);
+    ni.appendChild(document.createTextNode(pg.label));
+    if(pg.count>0){ni.appendChild(mk('span','nbadge',String(pg.count)));}
+    ni.onclick=()=>{
+      if(pg.key==='profile'){S.viewUserId=S.profile?.id;}
+      S.page=pg.key;render();
     };
-    container.appendChild(item);
+    nav.appendChild(ni);
   });
+  sb2.appendChild(nav);
+
+  const foot=mk('div','sb-foot');
+  const so=mk('button','so-btn','Sign out');
+  so.onclick=async()=>await sb.auth.signOut();
+  foot.appendChild(so);
+  sb2.appendChild(foot);
+  return sb2;
 }
 
-// ── DATA LAYER ───────────────────────────────────────────
-async function loadProfile(){
-  const {data}=await sb.from('profiles').select('*').eq('id',state.user.id).single();
-  state.profile=data;
+// ── FEED ──────────────────────────────────
+function renderFeedCol(){
+  const col=mk('div','feed-col');
+  const head=mk('div','feed-head');
+  head.appendChild(mk('span','','Feed'));
+  const rtd=mk('span',''); rtd.style.cssText='width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite';
+  head.appendChild(rtd);
+  col.appendChild(head);
+
+  const body=mk('div','feed-body');
+
+  // compose box
+  const cb=mk('div','compose-box');
+  const cav=mk('div','compose-av',initials(S.profile?.display_name||S.profile?.username));
+  cav.style.background=S.profile?.avatar_color||'#5b7fff';
+  cb.appendChild(cav);
+  const cr=mk('div','compose-right');
+  const ta=mk('textarea','compose-ta');
+  ta.placeholder="What's on your mind?";
+  ta.rows=2;
+  const MAX=280;
+  ta.oninput=()=>{
+    const left=MAX-ta.value.length;
+    counter.textContent=left;
+    counter.className='compose-counter'+(left<20?' warn':'')+(left<0?' over':'');
+    postBtn.disabled=ta.value.trim().length===0||left<0;
+  };
+  cr.appendChild(ta);
+  const cf=mk('div','compose-footer');
+  const counter=mk('span','compose-counter',String(MAX));
+  const postBtn=mk('button','post-btn','Post');
+  postBtn.disabled=true;
+  postBtn.onclick=async()=>{
+    const content=ta.value.trim();
+    if(!content||content.length>MAX)return;
+    postBtn.disabled=true;postBtn.textContent='Posting...';
+    const {error}=await sb.from('posts').insert({user_id:S.user.id,content});
+    if(error){toast('Error: '+error.message);}
+    else{ta.value='';counter.textContent=String(MAX);counter.className='compose-counter';}
+    postBtn.textContent='Post';
+  };
+  cf.appendChild(counter); cf.appendChild(postBtn);
+  cr.appendChild(cf); cb.appendChild(cr);
+  body.appendChild(cb);
+
+  // posts
+  const myFollowing=new Set(S.follows.filter(f=>f.follower_id===S.profile?.id).map(f=>f.following_id));
+  const feedPosts=S.posts.filter(p=>p.user_id===S.profile?.id||myFollowing.has(p.user_id))
+    .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+  if(feedPosts.length===0){
+    const emp=mk('div','empty-state');
+    emp.innerHTML='<div class="big">👋</div>Follow some people to see their posts here!';
+    body.appendChild(emp);
+  } else {
+    feedPosts.forEach(post=>body.appendChild(renderPost(post)));
+  }
+
+  col.appendChild(body);
+  return col;
 }
 
-async function loadEmails(){
-  const {data,error}=await sb.from('emails').select('*').eq('owner_id',state.user.id).order('created_at',{ascending:false});
-  if(!error)state.emails=data||[];
+function renderPost(post, showComments=false){
+  const prof=S.allProfiles.find(p=>p.id===post.user_id)||{username:'unknown',display_name:'Unknown',avatar_color:'#888'};
+  const card=mk('div','post-card');
+
+  const top=mk('div','post-top');
+  const av=mk('div','post-av',initials(prof.display_name||prof.username));
+  av.style.background=prof.avatar_color||'#5b7fff';
+  av.onclick=()=>goProfile(prof.id);
+  const meta=mk('div','post-meta');
+  const nameEl=mk('div','post-name',prof.display_name||prof.username);
+  nameEl.onclick=()=>goProfile(prof.id);
+  const handleEl=mk('div','post-handle','@'+prof.username+' · '+timeAgo(post.created_at));
+  meta.appendChild(nameEl); meta.appendChild(handleEl);
+  top.appendChild(av); top.appendChild(meta);
+  card.appendChild(top);
+
+  const content=mk('div','post-content',post.content);
+  content.onclick=()=>toggleComments(post.id);
+  card.appendChild(content);
+
+  // actions
+  const acts=mk('div','post-actions');
+  const likeCount=(S.posts.find(p=>p.id===post.id)||{}).like_count||post.like_count||0;
+  const isLiked=S.likes.has(post.id);
+  const likeBtn=mk('button','pact'+(isLiked?' liked':''));
+  likeBtn.innerHTML=`<svg viewBox="0 0 24 24" fill="${isLiked?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${likeCount}`;
+  likeBtn.onclick=async(e)=>{e.stopPropagation();await toggleLike(post);};
+  acts.appendChild(likeBtn);
+
+  const commentCount=post.comment_count||0;
+  const commentBtn=mk('button','pact');
+  commentBtn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${commentCount}`;
+  commentBtn.onclick=()=>toggleComments(post.id);
+  acts.appendChild(commentBtn);
+
+  if(post.user_id===S.profile?.id){
+    const delBtn=mk('button','pact pact-del');
+    delBtn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>`;
+    delBtn.onclick=async(e)=>{e.stopPropagation();await deletePost(post.id);};
+    acts.appendChild(delBtn);
+  }
+  card.appendChild(acts);
+
+  // comments section
+  if(S.openPostId===post.id){
+    card.appendChild(renderCommentsSection(post));
+  }
+
+  return card;
+}
+
+function renderCommentsSection(post){
+  const sec=mk('div','comments-section');
+  const postComments=(post.comments||[]);
+  postComments.forEach(c=>{
+    const prof=S.allProfiles.find(p=>p.id===c.user_id)||{username:'?',avatar_color:'#888',display_name:'?'};
+    const item=mk('div','comment-item');
+    const av=mk('div','comment-av',initials(prof.display_name||prof.username));
+    av.style.background=prof.avatar_color;
+    const body2=mk('div','comment-body');
+    body2.appendChild(mk('span','comment-name','@'+prof.username+' '));
+    body2.appendChild(mk('span','comment-text',c.content));
+    item.appendChild(av);item.appendChild(body2);
+    sec.appendChild(item);
+  });
+  const row=mk('div','comment-input-row');
+  const ci=mk('input','comment-inp');
+  ci.placeholder='Add a comment...';
+  const cs=mk('button','comment-send','Send');
+  cs.onclick=async()=>{
+    const text=ci.value.trim();
+    if(!text)return;
+    cs.disabled=true;
+    await sb.from('comments').insert({post_id:post.id,user_id:S.user.id,content:text});
+    if(post.user_id!==S.user.id){
+      await sb.from('notifications').insert({user_id:post.user_id,from_id:S.user.id,type:'comment',post_id:post.id});
+    }
+    ci.value='';cs.disabled=false;
+    await loadPosts();render();
+  };
+  ci.onkeydown=e=>e.key==='Enter'&&cs.click();
+  row.appendChild(ci);row.appendChild(cs);
+  sec.appendChild(row);
+  return sec;
+}
+
+// ── RIGHT COL ─────────────────────────────
+function renderRightCol(){
+  const col=mk('div','right-col');
+  // search
+  const srch=mk('div','search-bar');
+  const si=mk('input','search-inp');si.placeholder='Search people...';
+  si.oninput=async e=>{
+    const q=e.target.value.trim();
+    if(!q){resultsDiv.innerHTML='';return;}
+    const {data}=await sb.from('profiles').select('*').ilike('username','%'+q+'%').limit(5);
+    resultsDiv.innerHTML='';
+    (data||[]).forEach(p=>{ if(p.id!==S.profile?.id) resultsDiv.appendChild(renderSuggestItem(p)); });
+  };
+  srch.appendChild(si);col.appendChild(srch);
+  const resultsDiv=mk('div','right-section');
+  col.appendChild(resultsDiv);
+
+  // who to follow
+  const sugg=mk('div','right-section');
+  sugg.appendChild(mk('div','right-title','Who to follow'));
+  const myFollowing=new Set(S.follows.filter(f=>f.follower_id===S.profile?.id).map(f=>f.following_id));
+  const suggestions=S.allProfiles.filter(p=>p.id!==S.profile?.id&&!myFollowing.has(p.id)).slice(0,5);
+  if(suggestions.length===0){
+    sugg.appendChild(mk('div','','')); 
+    const em=mk('div',''); em.style.cssText='font-size:12px;color:var(--text3)'; em.textContent="You're following everyone!"; sugg.appendChild(em);
+  } else {
+    suggestions.forEach(p=>sugg.appendChild(renderSuggestItem(p)));
+  }
+  col.appendChild(sugg);
+  return col;
+}
+
+function renderSuggestItem(prof){
+  const item=mk('div','suggest-item');
+  const av=mk('div','sug-av',initials(prof.display_name||prof.username));
+  av.style.background=prof.avatar_color||'#5b7fff';
+  av.onclick=()=>goProfile(prof.id);
+  const info=mk('div','sug-info');
+  const name=mk('div','sug-name',prof.display_name||prof.username);
+  name.onclick=()=>goProfile(prof.id);
+  info.appendChild(name);
+  info.appendChild(mk('div','sug-handle','@'+prof.username));
+  const myFollowing=new Set(S.follows.filter(f=>f.follower_id===S.profile?.id).map(f=>f.following_id));
+  const isF=myFollowing.has(prof.id);
+  const fb=mk('button','follow-btn'+(isF?' following':''),isF?'Following':'Follow');
+  fb.onclick=async()=>{ await toggleFollow(prof.id); render(); };
+  item.appendChild(av);item.appendChild(info);item.appendChild(fb);
+  return item;
+}
+
+// ── PROFILE ───────────────────────────────
+function renderProfileCol(userId){
+  const col=mk('div','profile-view');
+  const prof=S.allProfiles.find(p=>p.id===userId)||S.profile;
+  if(!prof){col.appendChild(mk('div','empty-state','User not found'));return col;}
+
+  const header=mk('div','profile-header');
+  const top=mk('div','profile-top');
+  const av=mk('div','profile-av',initials(prof.display_name||prof.username));
+  av.style.background=prof.avatar_color||'#5b7fff';
+  const names=mk('div','profile-names');
+  names.appendChild(mk('div','profile-dname',prof.display_name||prof.username));
+  names.appendChild(mk('div','profile-handle','@'+prof.username));
+  top.appendChild(av);top.appendChild(names);
+  header.appendChild(top);
+
+  if(prof.bio) header.appendChild(mk('div','profile-bio',prof.bio));
+
+  const userPosts=S.posts.filter(p=>p.user_id===userId);
+  const userFollowers=S.follows.filter(f=>f.following_id===userId).length;
+  const userFollowing=S.follows.filter(f=>f.follower_id===userId).length;
+
+  const stats=mk('div','profile-stats');
+  const postStat=mk('div','stat');
+  postStat.appendChild(mk('div','stat-num',String(userPosts.length)));
+  postStat.appendChild(mk('div','stat-lbl','Posts'));
+  const follStat=mk('div','stat');
+  follStat.appendChild(mk('div','stat-num',String(userFollowers)));
+  follStat.appendChild(mk('div','stat-lbl','Followers'));
+  const follingStat=mk('div','stat');
+  follingStat.appendChild(mk('div','stat-num',String(userFollowing)));
+  follingStat.appendChild(mk('div','stat-lbl','Following'));
+  stats.appendChild(postStat);stats.appendChild(follStat);stats.appendChild(follingStat);
+  header.appendChild(stats);
+
+  if(userId===S.profile?.id){
+    const eb=mk('button','edit-profile-btn','Edit profile');
+    eb.onclick=()=>{S.editModal=true;render();};
+    header.appendChild(eb);
+  } else {
+    const myFollowing=new Set(S.follows.filter(f=>f.follower_id===S.profile?.id).map(f=>f.following_id));
+    const isF=myFollowing.has(userId);
+    const fb=mk('button','profile-follow-btn'+(isF?' following':''),isF?'Following':'Follow');
+    fb.onclick=async()=>{ await toggleFollow(userId); render(); };
+    header.appendChild(fb);
+  }
+  col.appendChild(header);
+
+  if(userPosts.length===0){
+    col.appendChild(mk('div','empty-state','No posts yet.'));
+  } else {
+    userPosts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))
+      .forEach(p=>col.appendChild(renderPost(p)));
+  }
+  return col;
+}
+
+// ── NOTIFICATIONS ─────────────────────────
+function renderNotifsCol(){
+  const col=mk('div','feed-col');
+  col.appendChild(mk('div','feed-head','Notifications'));
+  const body=mk('div','feed-body');
+
+  // mark all read
+  sb.from('notifications').update({is_read:true}).eq('user_id',S.user.id).then(()=>{
+    S.notifications.forEach(n=>n.is_read=true);
+  });
+
+  if(S.notifications.length===0){
+    body.appendChild(mk('div','empty-state','No notifications yet.'));
+  } else {
+    S.notifications.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).forEach(n=>{
+      const prof=S.allProfiles.find(p=>p.id===n.from_id)||{username:'someone',avatar_color:'#888',display_name:'Someone'};
+      const item=mk('div','notif-item'+(n.is_read?'':' unread'));
+      const av=mk('div','notif-av',initials(prof.display_name||prof.username));
+      av.style.background=prof.avatar_color;
+      const msgs={like:`@${prof.username} liked your post`,comment:`@${prof.username} commented on your post`,follow:`@${prof.username} started following you`};
+      const txt=mk('span','',msgs[n.type]||'New notification');
+      const time=mk('span','');time.style.cssText='margin-left:auto;font-size:11px;color:var(--text3);font-family:monospace';
+      time.textContent=timeAgo(n.created_at);
+      if(!n.is_read){item.appendChild(mk('span','notif-dot',''));}
+      item.appendChild(av);item.appendChild(txt);item.appendChild(time);
+      body.appendChild(item);
+    });
+  }
+  col.appendChild(body);
+  return col;
+}
+
+// ── SEARCH ────────────────────────────────
+function renderSearchCol(){
+  const col=mk('div','feed-col');
+  col.appendChild(mk('div','feed-head','Explore'));
+  const body=mk('div','feed-body');
+
+  const srch=mk('div','');
+  srch.style.cssText='padding:12px 16px;border-bottom:1px solid var(--border)';
+  const si=mk('input','search-inp');
+  si.placeholder='Search people by username...';
+  si.style.width='100%';
+  const resDiv=mk('div','');
+  si.oninput=async e=>{
+    const q=e.target.value.trim();
+    if(!q){resDiv.innerHTML='';return;}
+    const {data}=await sb.from('profiles').select('*').ilike('username','%'+q+'%').limit(10);
+    resDiv.innerHTML='';
+    (data||[]).forEach(p=>{
+      const item=renderSuggestItem(p);
+      item.style.cssText='padding:10px 16px;border-bottom:1px solid var(--border)';
+      resDiv.appendChild(item);
+    });
+  };
+  srch.appendChild(si);body.appendChild(srch);body.appendChild(resDiv);
+
+  // show all posts as explore
+  const exploreTitle=mk('div','');
+  exploreTitle.style.cssText='padding:12px 16px;font-size:13px;font-weight:600;color:var(--text2)';
+  exploreTitle.textContent='Recent posts';
+  body.appendChild(exploreTitle);
+  const allPosts=[...S.posts].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  allPosts.forEach(p=>body.appendChild(renderPost(p)));
+  col.appendChild(body);
+  return col;
+}
+
+// ── EDIT MODAL ────────────────────────────
+function renderEditModal(){
+  let dname=S.profile?.display_name||'', bio2=S.profile?.bio||'';
+  const bg=mk('div','modal-bg');
+  bg.onclick=e=>{if(e.target===bg){S.editModal=false;render();}};
+  const modal=mk('div','modal');
+  const head=mk('div','modal-head');
+  head.appendChild(mk('span','modal-title','Edit profile'));
+  const x=mk('button','modal-x','×');x.onclick=()=>{S.editModal=false;render();};
+  head.appendChild(x);modal.appendChild(head);
+  const body2=mk('div','modal-body');
+  body2.appendChild(mk('label','lbl','Display name'));
+  const di=mk('input','inp');di.value=dname;di.oninput=e=>dname=e.target.value;body2.appendChild(di);
+  body2.appendChild(mk('label','lbl','Bio'));
+  const bi=mk('textarea','inp');bi.value=bio2;bi.rows=3;bi.oninput=e=>bio2=e.target.value;bi.style.resize='vertical';body2.appendChild(bi);
+  const saveb=mk('button','btn-primary','Save changes');
+  saveb.onclick=async()=>{
+    saveb.disabled=true;saveb.textContent='Saving...';
+    await sb.from('profiles').update({display_name:dname,bio:bio2}).eq('id',S.user.id);
+    S.profile.display_name=dname;S.profile.bio=bio2;
+    S.editModal=false;render();toast('Profile updated!');
+  };
+  body2.appendChild(saveb);modal.appendChild(body2);bg.appendChild(modal);
+  return bg;
+}
+
+// ══════════════════════════════════════════
+//  ACTIONS
+// ══════════════════════════════════════════
+function goProfile(userId){
+  S.page='profile';S.viewUserId=userId;render();
+}
+
+function toggleComments(postId){
+  S.openPostId=S.openPostId===postId?null:postId;render();
+}
+
+async function toggleLike(post){
+  const isLiked=S.likes.has(post.id);
+  if(isLiked){
+    await sb.from('likes').delete().eq('user_id',S.user.id).eq('post_id',post.id);
+    S.likes.delete(post.id);
+    const p=S.posts.find(p=>p.id===post.id);if(p)p.like_count=Math.max(0,(p.like_count||1)-1);
+  } else {
+    await sb.from('likes').insert({user_id:S.user.id,post_id:post.id});
+    S.likes.add(post.id);
+    const p=S.posts.find(p=>p.id===post.id);if(p)p.like_count=(p.like_count||0)+1;
+    if(post.user_id!==S.user.id){
+      await sb.from('notifications').insert({user_id:post.user_id,from_id:S.user.id,type:'like',post_id:post.id});
+    }
+  }
+  render();
+}
+
+async function toggleFollow(userId){
+  const myFollowing=new Set(S.follows.filter(f=>f.follower_id===S.profile?.id).map(f=>f.following_id));
+  if(myFollowing.has(userId)){
+    await sb.from('follows').delete().eq('follower_id',S.user.id).eq('following_id',userId);
+    S.follows=S.follows.filter(f=>!(f.follower_id===S.user.id&&f.following_id===userId));
+  } else {
+    await sb.from('follows').insert({follower_id:S.user.id,following_id:userId});
+    S.follows.push({follower_id:S.user.id,following_id:userId});
+    await sb.from('notifications').insert({user_id:userId,from_id:S.user.id,type:'follow'});
+  }
+}
+
+async function deletePost(postId){
+  await sb.from('posts').delete().eq('id',postId);
+  S.posts=S.posts.filter(p=>p.id!==postId);
+  render();
+}
+
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+async function loadAll(){
+  const [postsRes,profilesRes,followsRes,likesRes,notifsRes]=await Promise.all([
+    sb.from('posts').select('*').order('created_at',{ascending:false}).limit(100),
+    sb.from('profiles').select('*'),
+    sb.from('follows').select('*'),
+    sb.from('likes').select('post_id').eq('user_id',S.user.id),
+    sb.from('notifications').select('*').eq('user_id',S.user.id).order('created_at',{ascending:false}).limit(50),
+  ]);
+  S.posts=postsRes.data||[];
+  S.allProfiles=profilesRes.data||[];
+  S.follows=followsRes.data||[];
+  S.likes=new Set((likesRes.data||[]).map(l=>l.post_id));
+  S.notifications=notifsRes.data||[];
+
+  // load comments for open post
+  if(S.openPostId){
+    const {data}=await sb.from('comments').select('*').eq('post_id',S.openPostId).order('created_at');
+    const post=S.posts.find(p=>p.id===S.openPostId);
+    if(post)post.comments=data||[];
+  }
+
+  // attach like_counts
+  const {data:lc}=await sb.from('likes').select('post_id');
+  const counts={};
+  (lc||[]).forEach(l=>{counts[l.post_id]=(counts[l.post_id]||0)+1;});
+  S.posts.forEach(p=>{p.like_count=counts[p.id]||0;});
+
+  // attach comment counts
+  const {data:cc}=await sb.from('comments').select('post_id');
+  const ccounts={};
+  (cc||[]).forEach(c=>{ccounts[c.post_id]=(ccounts[c.post_id]||0)+1;});
+  S.posts.forEach(p=>{p.comment_count=ccounts[p.id]||0;});
+}
+
+async function loadPosts(){
+  const {data}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(100);
+  S.posts=data||[];
+  const {data:lc}=await sb.from('likes').select('post_id');
+  const counts={};(lc||[]).forEach(l=>{counts[l.post_id]=(counts[l.post_id]||0)+1;});
+  S.posts.forEach(p=>{p.like_count=counts[p.id]||0;});
+  const {data:cc}=await sb.from('comments').select('post_id');
+  const ccounts={};(cc||[]).forEach(c=>{ccounts[c.post_id]=(ccounts[c.post_id]||0)+1;});
+  S.posts.forEach(p=>{p.comment_count=ccounts[p.id]||0;});
 }
 
 function setupRealtime(){
-  if(realtimeSub)supabase.removeChannel(realtimeSub);
-  realtimeSub=sb.channel('emails-'+state.user.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'emails',filter:'owner_id=eq.'+state.user.id},
-      async(payload)=>{
-        state.emails.unshift(payload.new);
-        if(payload.new.folder==='inbox')toast('📬 New email from '+payload.new.from_addr);
-        render();
+  channels.forEach(c=>sb.removeChannel(c));channels=[];
+  const ch=sb.channel('socialbox')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},async p=>{
+      S.posts.unshift(p.new);p.new.like_count=0;p.new.comment_count=0;
+      if(p.new.user_id!==S.user.id){
+        const prof=S.allProfiles.find(pr=>pr.id===p.new.user_id);
+        if(prof)toast('📝 @'+prof.username+' posted');
       }
-    )
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'emails',filter:'owner_id=eq.'+state.user.id},
-      (payload)=>{
-        const idx=state.emails.findIndex(e=>e.id===payload.new.id);
-        if(idx>=0)state.emails[idx]=payload.new;
-        if(state.selected?.id===payload.new.id)state.selected=payload.new;
-        render();
-      }
-    )
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'emails',filter:'owner_id=eq.'+state.user.id},
-      (payload)=>{
-        state.emails=state.emails.filter(e=>e.id!==payload.old.id);
-        if(state.selected?.id===payload.old.id)state.selected=null;
-        render();
-      }
-    )
+      render();
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'posts'},p=>{
+      S.posts=S.posts.filter(po=>po.id!==p.old.id);render();
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+S.user.id},p=>{
+      S.notifications.unshift(p.new);render();
+    })
     .subscribe();
+  channels.push(ch);
 }
 
-// ── BOOT ─────────────────────────────────────────────────
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
 async function init(){
-  // Check for existing session
   const {data:{session}}=await sb.auth.getSession();
   if(session){
-    state.user=session.user;
-    await loadProfile();
-    await loadEmails();
+    S.user=session.user;
+    await sb.from('profiles').select('*').eq('id',S.user.id).single().then(({data})=>S.profile=data);
+    await loadAll();
     setupRealtime();
   }
-  state.loading=false;
-  render();
+  S.loading=false;render();
 
-  // Auth state changes
-  sb.auth.onAuthStateChange(async(_event,session)=>{
+  sb.auth.onAuthStateChange(async(_,session)=>{
     if(session){
-      state.user=session.user;
-      state.loading=true; render();
-      await loadProfile();
-      await loadEmails();
-      setupRealtime();
-      state.loading=false;
+      S.user=session.user;S.loading=true;render();
+      await sb.from('profiles').select('*').eq('id',S.user.id).single().then(({data})=>S.profile=data);
+      await loadAll();setupRealtime();S.loading=false;
     } else {
-      state.user=null;state.profile=null;state.emails=[];
-      state.selected=null;state.composing=false;
-      if(realtimeSub){sb.removeChannel(realtimeSub);realtimeSub=null;}
+      S.user=null;S.profile=null;S.posts=[];S.allProfiles=[];S.follows=[];S.likes=new Set();S.notifications=[];
+      channels.forEach(c=>sb.removeChannel(c));channels=[];
     }
     render();
   });
 }
-
 init();
 </script>
 </body>
