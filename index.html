@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -256,8 +257,19 @@ function renderAuth(){
     function showErr(m){msgArea.innerHTML='';msgArea.appendChild(el('div',{class:'err'},m));}
     function showOk(m){msgArea.innerHTML='';msgArea.appendChild(el('div',{class:'ok'},m));}
 
-    if(tab==='create'){
-      // Mailbox address picker
+    if(tab==='login'){
+      // Simple email input for login
+      card.appendChild(el('label',{class:'lbl'},'Your email address'));
+      const loginEmail=el('input',{class:'inp',type:'text',placeholder:'yourname@mailbox.io',value:username+domain});
+      loginEmail.oninput=e=>{
+        const val=e.target.value.trim();
+        const atIdx=val.lastIndexOf('@');
+        if(atIdx>0){username=val.slice(0,atIdx);domain=val.slice(atIdx);}
+        else username=val;
+      };
+      card.appendChild(loginEmail);
+    } else {
+      // Username + domain picker for signup
       card.appendChild(el('label',{class:'lbl'},'Your mailbox address'));
       const urow=el('div',{class:'urow'});
       const uinp=el('input',{class:'inp',placeholder:'yourname',value:username});
@@ -266,7 +278,9 @@ function renderAuth(){
       domains.forEach(d=>{const o=el('option',{value:d},d);if(d===domain)o.selected=true;dsel.appendChild(o);});
       dsel.onchange=e=>domain=e.target.value;
       urow.appendChild(uinp); urow.appendChild(dsel); card.appendChild(urow);
+    }
 
+    if(tab==='create'){
       // Domain pills — no rebuild on interaction, update DOM directly
       const dsec=el('div',{class:'dsec',style:'margin-bottom:14px'});
       const dpills=el('div',{class:'dpills',id:'dpills-container'});
