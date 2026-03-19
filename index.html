@@ -85,12 +85,9 @@ img,video{display:block}
 /* ══════════════════════════════════════════════════════
    LOADING SCREEN
 ══════════════════════════════════════════════════════ */
-.loading-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:var(--bg0);animation:fadeIn .3s ease}
-.loading-logo{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;background:var(--story-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gradientShift 3s ease infinite}
-.loading-dots{display:flex;gap:6px}
-.loading-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bounce .8s ease infinite}
-.loading-dot:nth-child(2){animation-delay:.15s}
-.loading-dot:nth-child(3){animation-delay:.3s}
+.loading-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:var(--bg0)}
+.px-loader{position:relative;width:160px;height:160px}
+.px-loader canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 
 /* ══════════════════════════════════════════════════════
    SKELETON LOADER
@@ -1114,12 +1111,177 @@ function render(){
 // ═══════════════════════════════════════════════════════════════════════
 //  LOADING
 // ═══════════════════════════════════════════════════════════════════════
+
+// ── Image compression before upload ──────────────────────────────────
+function compressImage(file, maxW=1200, quality=0.82){
+  return new Promise(resolve=>{
+    if(file.type.startsWith('video/')){resolve(file);return;}
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const scale=Math.min(1,maxW/Math.max(img.width,img.height));
+      const w=Math.round(img.width*scale), h=Math.round(img.height*scale);
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(blob=>resolve(new File([blob],file.name,{type:'image/jpeg'})),'image/jpeg',quality);
+    };
+    img.src=url;
+  });
+}
+
 function renderLoading(){
   const w=mk('div',{class:'loading-screen'});
-  w.appendChild(mk('div',{class:'loading-logo',text:'socialbox'}));
-  const dots=mk('div',{class:'loading-dots'});
-  for(let i=0;i<3;i++)dots.appendChild(mk('div',{class:'loading-dot'}));
-  w.appendChild(dots);
+  const wrap=mk('div',{class:'px-loader'});
+  const c=document.createElement('canvas');
+  c.width=160;c.height=160;c.style.width='160px';c.style.height='160px';
+  wrap.appendChild(c);w.appendChild(wrap);
+
+  // pixel size
+  const P=8;
+  const cx2=c.getContext('2d');
+
+  // Colors
+  const COL_BG='#0a0a0b';
+  const COL_CIRCLE='#6366f1';
+  const COL_S='#f0f0f2';
+  const COL_GLOW='rgba(99,102,241,0.35)';
+
+  // 20x20 grid, circle in pixel coords (indices where circle border is)
+  // Pre-computed 20x20 circle ring pixels (radius ~8, center 9.5,9.5)
+  const GRID=20;
+  const CR=8.5, CCX=9.5, CCY=9.5;
+  const circlePx=[];
+  for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
+    const d=Math.sqrt((x-CCX)**2+(y-CCY)**2);
+    if(d>=CR-0.9&&d<=CR+0.4)circlePx.push([x,y]);
+  }
+  // Sort by angle
+  circlePx.sort((a,b)=>Math.atan2(a[1]-CCY,a[0]-CCX)-Math.atan2(b[1]-CCY,b[0]-CCX));
+
+  // 5x7 pixel font for "ocialbox"
+  const FONT={
+    o:[[0,1,1,0],[1,0,0,1],[1,0,0,1],[1,0,0,1],[0,1,1,0]],
+    c:[[0,1,1,0],[1,0,0,0],[1,0,0,0],[1,0,0,0],[0,1,1,0]],
+    i:[[1,1,1],[0,1,0],[0,1,0],[0,1,0],[1,1,1]],
+    a:[[0,1,1,0],[1,0,0,1],[1,1,1,1],[1,0,0,1],[1,0,0,1]],
+    l:[[1,0],[1,0],[1,0],[1,0],[1,1]],
+    b:[[1,0,0],[1,1,1],[1,0,1],[1,0,1],[1,1,1]],
+    x:[[1,0,1],[1,0,1],[0,1,0],[1,0,1],[1,0,1]],
+    s:[[0,1,1],[1,0,0],[0,1,0],[0,0,1],[1,1,0]],
+    S:[[0,1,1,1],[1,0,0,0],[0,1,1,0],[0,0,0,1],[1,1,1,0]],
+  };
+
+  // Draw one pixel (in grid units)
+  function dp(gx,gy,col){
+    cx2.fillStyle=col;
+    cx2.fillRect(gx*P,gy*P,P,P);
+  }
+
+  // Draw letter at pixel position
+  function drawLetter(ch,startX,startY,col){
+    const m=FONT[ch];if(!m)return;
+    for(let r=0;r<m.length;r++)for(let cc=0;cc<m[r].length;cc++)if(m[r][cc])dp(startX+cc,startY+r,col);
+  }
+
+  // Draw "ocialbox" centered below circle, pixel art style
+  function drawWordmark(){
+    const word=['o','c','i','a','l','b','o','x'];
+    const widths=word.map(ch=>FONT[ch][0].length+1);
+    const total=widths.reduce((a,b)=>a+b,0)-1;
+    let x=Math.round((GRID-total)/2);
+    for(let i=0;i<word.length;i++){
+      drawLetter(word[i],x,14,COL_CIRCLE);
+      x+=widths[i];
+    }
+  }
+
+  // Animation state
+  // Phase 0: circle draws in (0..1)
+  // Phase 1: S breaks out, spins around outside circle (0..1)
+  // Phase 2: S comes back, circle closes (0..1)
+  let phase=0, prog=0;
+  let raf;
+  const PHASE_DUR=[800,1100,700]; // ms per phase
+
+  // S orbit: travels outside the circle one full loop
+  function getSOrbit(t){
+    // t 0..1 = one full orbit outside circle
+    const angle=-Math.PI/2 + t*Math.PI*2; // start top
+    const r=CR+2.5;
+    return [CCX+r*Math.cos(angle)-0.5, CCY+r*Math.sin(angle)-0.5];
+  }
+
+  // Break-out position: S moves from center to orbit start
+  function getSBreak(t){
+    const [ox,oy]=getSOrbit(0);
+    return [CCX-0.5+(ox-(CCX-0.5))*t, CCY-0.5+(oy-(CCY-0.5))*t];
+  }
+
+  // Return position: S moves from orbit end back to center
+  function getSReturn(t){
+    const [ox,oy]=getSOrbit(1);
+    return [ox+(CCX-0.5-ox)*t, oy+(CCY-0.5-oy)*t];
+  }
+
+  let lastTs=null;
+  function frame(ts){
+    if(!lastTs)lastTs=ts;
+    const dt=ts-lastTs;lastTs=ts;
+    prog+=dt/PHASE_DUR[phase];
+    if(prog>=1){prog=0;phase=(phase+1)%3;}
+
+    cx2.fillStyle=COL_BG;cx2.fillRect(0,0,160,160);
+
+    const t=prog;
+
+    if(phase===0){
+      // Draw circle building up
+      const nVisible=Math.round(circlePx.length*t);
+      for(let i=0;i<nVisible;i++)dp(circlePx[i][0],circlePx[i][1],COL_CIRCLE);
+      // S at center
+      drawLetter('S',Math.round(CCX)-1,Math.round(CCY)-2,COL_S);
+    }
+    else if(phase===1){
+      // Full circle (but gap where S exits - cut top pixel)
+      for(let i=0;i<circlePx.length;i++){
+        const [px,py]=circlePx[i];
+        // Gap at top for S to escape (angle near -PI/2)
+        const ang=Math.atan2(py-CCY,px-CCX);
+        const gapT=t<0.08?t/0.08:1; // gap opens quickly
+        const gapSize=gapT*0.45;
+        const inGap=Math.abs(ang+Math.PI/2)<gapSize;
+        if(!inGap)dp(px,py,COL_CIRCLE);
+      }
+      // S orbiting
+      let sx,sy;
+      if(t<0.1){const [bx,by]=getSBreak(t/0.1);sx=Math.round(bx);sy=Math.round(by);}
+      else{const [ox,oy]=getSOrbit((t-0.1)/0.9);sx=Math.round(ox);sy=Math.round(oy);}
+      drawLetter('S',sx,sy,COL_S);
+    }
+    else{
+      // S returning to center, circle closing gap
+      const gapClose=t;
+      for(let i=0;i<circlePx.length;i++){
+        const [px,py]=circlePx[i];
+        const ang=Math.atan2(py-CCY,px-CCX);
+        const gapSize=(1-gapClose)*0.45;
+        const inGap=Math.abs(ang+Math.PI/2)<gapSize;
+        if(!inGap)dp(px,py,COL_CIRCLE);
+      }
+      // S moving back in
+      if(t<0.7){const [rx,ry]=getSReturn(t/0.7);drawLetter('S',Math.round(rx),Math.round(ry),COL_S);}
+      else{drawLetter('S',Math.round(CCX)-1,Math.round(CCY)-2,COL_S);}
+    }
+
+    drawWordmark();
+    raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  // cleanup when element removed
+  const obs=new MutationObserver(()=>{if(!document.contains(c)){cancelAnimationFrame(raf);obs.disconnect();}});
+  obs.observe(document.body,{childList:true,subtree:true});
+
   return w;
 }
 
@@ -1567,12 +1729,16 @@ function renderComposeBar(){
     try{
       let mediaUrl=null;
       if(file){
-        const path=`${S.user.id}/${Date.now()}.${file.name.split('.').pop()}`;
-        const {error:ue}=await sb.storage.from('media').upload(path,file,{cacheControl:'3600'});
+        const compressed=await compressImage(file);
+        const ext=compressed.type==='image/jpeg'?'jpg':file.name.split('.').pop();
+        const path=`${S.user.id}/${Date.now()}.${ext}`;
+        const {error:ue}=await sb.storage.from('media').upload(path,compressed,{cacheControl:'3600'});
         if(!ue){const {data:{publicUrl}}=sb.storage.from('media').getPublicUrl(path);mediaUrl=publicUrl;}
       }
       await sb.from('posts').insert({user_id:S.user.id,content:content.trim(),media_url:mediaUrl,media_type:mtype});
-      toast('Post shared! ✨','success');
+      ta.value='';content='';file=null;mtype=null;prevContainer.innerHTML='';
+      counter.textContent=String(MAX_POST);counter.className='compose-counter';
+      submitBtn.textContent='Post';toast('Post shared! ✨','success');
       await loadPosts();render();
     }catch(err){toast('Failed: '+err.message,'error');submitBtn.disabled=false;submitBtn.textContent='Post';}
   };
@@ -2237,7 +2403,7 @@ function renderExploreView(){
         if(p.id!==S.profile?.id){
           const isF=myF.has(p.id);
           const fb=mk('button',{class:'explore-res-follow-btn'+(isF?' following':''),text:isF?'Following':'Follow'});
-          fb.onclick=async e2=>{e2.stopPropagation();await handleFollow(p.id);render();};
+          fb.onclick=async e2=>{e2.stopPropagation();await handleFollow(p.id);fb.textContent=myF.has(p.id)?'Follow':'Following';fb.className='explore-res-follow-btn'+(myF.has(p.id)?'':' following');};
           row.appendChild(fb);
         }
         view.appendChild(row);
@@ -2757,7 +2923,7 @@ function renderUploadModal(type){
   if(type==='post'){
     body.appendChild(mk('label',{class:'create-form-label',text:'Caption'}));
     const cap=mk('textarea',{class:'create-form-ta',placeholder:"Write a caption..."});cap.rows=3;
-    cap.oninput=e=>{caption=e.target.value;submitBtn.disabled=!caption.trim()&&!file;};body.appendChild(cap);
+    cap.oninput=e=>caption=e.target.value;body.appendChild(cap);
   }
   modal.appendChild(body);
 
@@ -2770,7 +2936,6 @@ function renderUploadModal(type){
 
   submitBtn.onclick=async()=>{
     if(!file&&type==='story'){toast('Select a photo or video first','error');return;}
-    if(!file&&type==='post'&&!caption.trim()){toast('Write something or add a photo','error');return;}
     submitBtn.disabled=true;submitBtn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Uploading...`;
     prog.style.display='block';pf.style.width='30%';
     try{
@@ -2778,7 +2943,8 @@ function renderUploadModal(type){
       if(file){
         const path=`${S.user.id}/${Date.now()}.${file.name.split('.').pop()}`;
         pf.style.width='60%';
-        const {error:ue}=await sb.storage.from('media').upload(path,file,{cacheControl:'3600'});
+        const compressed2=await compressImage(file);
+        const {error:ue}=await sb.storage.from('media').upload(path,compressed2,{cacheControl:'3600'});
         if(ue)throw ue;
         const {data:{publicUrl}}=sb.storage.from('media').getPublicUrl(path);
         mediaUrl=publicUrl;pf.style.width='80%';
@@ -2849,7 +3015,8 @@ function renderReelModal(){
       let videoUrl=null;
       if(file){
         const path=`${S.user.id}/${Date.now()}.${file.name.split('.').pop()}`;
-        const {error}=await sb.storage.from('media').upload(path,file);
+        const compressed3=await compressImage(file,1920,0.88);
+        const {error}=await sb.storage.from('media').upload(path,compressed3);
         if(error)throw error;
         const {data:{publicUrl}}=sb.storage.from('media').getPublicUrl(path);
         videoUrl=publicUrl;
