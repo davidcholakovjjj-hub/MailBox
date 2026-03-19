@@ -732,6 +732,14 @@ img,video{display:block;image-rendering:pixelated}
 <script>
 'use strict';
 
+// Add this line right here
+console.log('=== SCRIPT STARTED ===');
+window.onerror = function(msg, url, line) {
+  console.error('GLOBAL ERROR:', msg, 'at line', line);
+  toast('Script error: ' + msg, 'error');
+  return false;
+};;
+
 function compressImage(file,maxW=1080,quality=0.80){
   return new Promise(resolve=>{
     if(!file.type.startsWith('image/')){resolve(file);return;}
@@ -796,7 +804,10 @@ function uploadWithTimeout(bucket, path, file, opts = {}, timeoutMs = 30000) {
     });
 }
 async function uploadMedia(file,userId){
-  // ... uploadMedia code ...
+  console.log('uploadMedia called with file:', file ? file.name : 'no file');
+  console.log('User ID:', userId);
+  
+  // Rest of your code...
 }
 
 // ═══════════════════════════════════════════════════════════════════════
