@@ -754,14 +754,47 @@ function compressImage(file,maxW=1080,quality=0.80){
   // ... compressImage code ...
 }
 
-function uploadWithTimeout(bucket,path,file,opts={},ms=30000){
-  // THIS IS THE FUNCTION YOU NEED TO REPLACE
-  return Promise.race([
-    sb.storage.from(bucket).upload(path,file,opts),
-    new Promise((_,rej)=>setTimeout(()=>rej(new Error('Upload timed out – try a smaller file')),ms))
-  ]);
-}
+function uploadWithTimeout(bucket, path, file, opts = {}, timeoutMs = 30000) {
+  console.log('1. Starting uploadWithTimeout for:', path);
+  console.log('2. File type:', file.type, 'size:', file.size);
+  
+  const controller = new AbortController();
+  const signal = controller.signal;
+  
+  const timeoutId = setTimeout(() => {
+    console.log('3. Upload timed out, aborting...');
+    controller.abort();
+  }, timeoutMs);
 
+  const uploadOpts = {
+    ...opts,
+    abortSignal: signal
+  };
+
+  console.log('4. Calling supabase storage upload...');
+  
+  return sb.storage.from(bucket).upload(path, file, uploadOpts)
+    .then(result => {
+      console.log('5. Upload successful:', result);
+      clearTimeout(timeoutId);
+      return result;
+    })
+    .catch(error => {
+      console.log('6. Upload failed with error:', error);
+      clearTimeout(timeoutId);
+      
+      // Log the full error object
+      console.log('Error name:', error.name);
+      console.log('Error message:', error.message);
+      console.log('Error status:', error.status);
+      console.log('Error details:', error);
+      
+      if (error.name === 'AbortError' || error.message?.includes('abort')) {
+        throw new Error(`Upload timed out after ${timeoutMs/1000} seconds. Try a smaller file or better connection.`);
+      }
+      throw error;
+    });
+}
 async function uploadMedia(file,userId){
   // ... uploadMedia code ...
 }
